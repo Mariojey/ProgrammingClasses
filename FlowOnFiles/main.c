@@ -1,33 +1,55 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int main(){
+char cesar(char ch, int shift){
+  if (ch >= 'a' && ch <= 'z'){
+    ch = 'a' + (ch - 'a' + shift) % 26;
+  }
+  else if(ch >= 'A' && ch <= 'Z'){
+    ch = 'A' + (ch - 'A' + shift) % 26;
+  }
+  return ch;
+}
 
-  FILE * file;
+int main(int argc, const char * argv[]){
 
-  file = fopen("my_file.txt", "w");
-
-  if(file == NULL){
-    printf("File not found\n");
+  if(argc < 3){
+    printf("Usage: ./main path shift/n");
     return 1;
   }
 
-  //If you want write data to file you ought to use fprintf or fputs (for strings) or fputc (for chars)
-  char buffer_hw[12] = "Hello World";
-  fprintf(file, "%s", buffer_hw);
+ const char * path = argv[1];
+ const int shift = atoi(argv[2]);
 
-  char buffer_hf[12] = "Hello Filee";
-  fputs(buffer_hf, file);
-  fputc('\n', file);
-//
-//  feof(plik) – sprawdza, czy osiągnięto koniec pliku
-//
-//ferror(plik) – sprawdza, czy wystąpił błąd
-//
-//rewind(plik) – cofa wskaźnik pliku na początek
-//
-//fseek(plik, offset, origin) – przesuwa wskaźnik pliku
-//
-//ftell(plik) – zwraca bieżącą pozycję wskaźnika
+ FILE * file_input = fopen(path, "r");
+
+ if(file_input == NULL){
+   	perror("Error opening file");
+ 	return 1;
+ }
+
+ FILE * file_output = fopen("output.txt","w");
+
+ if(file_output == NULL){
+   perror("Error opening file");
+   return 1;
+ }
+
+ char buffer;
+ while((buffer = fgetc(file_input)) != EOF){
+   printf("%c", buffer);
+ }
+
+ rewind(file_input);
+
+ while((buffer = getc(file_input)) != EOF){
+  char decoded = cesar(buffer, shift);
+  printf("%c", decoded);
+  putc(decoded, file_output);
+ }
+
+ fclose(file_input);
+ fclose(file_output);
 
   return 0;
 }
